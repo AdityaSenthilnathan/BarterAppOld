@@ -5,7 +5,10 @@ import {createBottomTabNavigator} from 'react-navigation-tabs'
 import LoginScreen from './screens/LoginScreen'
 
 import PostScreen from './screens/PostScreen'
-import ReqeustScreen from './screens/ReqeustScreen'
+import DonateScreen from './screens/DonateScreen'
+import { AppDrawerNavigator } from './components/AppDrawerNavigator';
+import {createDrawerNavigator} from 'react-navigation-drawer';
+import SettingScreen from './screens/SettingScreen';
 
 
 export default function App() {
@@ -15,13 +18,9 @@ export default function App() {
 }
 
 
-  var TabNavigator = createBottomTabNavigator({
-    PostScreen: PostScreen,
-    ReqeustScreen: ReqeustScreen
-    })
-  var SwitchNavigator = createSwitchNavigator({
-    LoginScreen: LoginScreen,
-    TabNavigator: TabNavigator
-    })
-    
-const AppContainer  = createAppContainer(SwitchNavigator);
+const switchNavigator = createSwitchNavigator({
+  WelcomeScreen:{screen: LoginScreen},
+  Drawer:{screen: AppDrawerNavigator}
+})
+
+const AppContainer  = createAppContainer(switchNavigator);

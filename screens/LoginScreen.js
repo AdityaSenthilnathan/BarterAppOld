@@ -54,7 +54,7 @@ export default class LoginScreen extends React.Component {
 
         if (response) {
 
-          this.props.navigation.navigate('ReqeustScreen')
+          this.props.navigation.navigate('Drawer')
         }
       }
       catch (error) {
@@ -95,6 +95,7 @@ export default class LoginScreen extends React.Component {
       firebase.auth().createUserWithEmailAndPassword(Email, Password)
         .then((response) => {
           db.collection('User').add({
+            Email : this.state.Email,
             FirstName: this.state.FirstName,
             LastName: this.state.LastName,
             Contact: this.state.Contact,

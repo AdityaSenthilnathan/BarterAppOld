@@ -9,18 +9,43 @@ export default class PostScreen extends React.Component {
         this.state = {
           Description: '',
           Name: '',
+          userId: firebase.auth().currentUser.email,
+          UserName: ''
           
         }
       }
 
-  AddBarterReqeust = (Name, ItemDescription) => {
-    alert("added");
-        db.collection('BarterReqeusts').add({
-            "NameOfItem": Name,
-            "Description": ItemDescription,
-            "User": firebase.auth().currentUser.email,
+      createUniqueId(){
+        return Math.random().toString(36).substring(7);
+      }
+
+  AddBarterReqeust = (Name, ItemDescription)=>{
+    var email = firebase.auth().currentUser.email
+    db.collection('User').where('Email', '==', email).get()
+      .then((snapshot)=>{
+        snapshot.forEach((doc) => {
+          this.setState({
+            UserName : doc.data().FirstName + " " + doc.data().LastName
           })
+        });
+      
+    });
+    var userId = this.state.userId
+        db.collection('BarterReqeusts').add({
+            "NameOfItem" : Name,
+            "Description" : ItemDescription,
+            "UserId" : userId,
+            "ReqeustId" : this.createUniqueId(),
+            "UserName" : this.state.UserName
+
+          })
+          this.setState({
+            Name :'',
+            Description : ''
+        })  
     }
+  
+  
     
 render(){
     return(
