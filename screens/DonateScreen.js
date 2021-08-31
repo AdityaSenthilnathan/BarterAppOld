@@ -3,7 +3,9 @@ import { View, StyleSheet, Text, FlatList,TouchableOpacity } from 'react-native'
 import { ListItem } from 'react-native-elements'
 import firebase from 'firebase';
 import db from '../config'
-
+import SafeAreaView from 'react-native-safe-area-view';
+import MyHeader from '../components/MyHeader.js'
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default class DonateScreen extends Component{
   constructor(){
@@ -39,20 +41,15 @@ export default class DonateScreen extends Component{
   renderItem = ( {item, i} ) =>{
     return (
    
-      <ListItem bottomDivider> 
-      
-      <ListItem.Content>
-        <ListItem.Title style={{ color: 'black', fontWeight: 'bold' }}> {item.NameOfItem} 
-        </ListItem.Title>
-        <ListItem.Subtitle> {item.Description} </ListItem.Subtitle> 
-        <TouchableOpacity style={styles.button} onPress = {()=>{
-              this.props.navigation.navigate('RecieverDetails', {"details": item})
-            }}>
-        </TouchableOpacity>
-        
-    </ListItem.Content>
-  </ListItem>
-  
+     
+      <ListItem
+      key={i}
+      title={item.NameOfItem}
+      subtitle={item.Description}
+      titleStyle={{ color: 'black', fontWeight: 'bold' }}
+      bottomDivider
+    />
+    
       
     )
   }
@@ -60,6 +57,9 @@ export default class DonateScreen extends Component{
   render(){
     return(
       <View style={{flex:1}}>
+          <SafeAreaProvider style={{ flex: 1 }}>
+      
+        <MyHeader navigation={this.props.navigation} title="Donate"/>
         <View style={{flex:1}}>
           {
             this.state.BarterReqeusts.length != 0
@@ -79,6 +79,7 @@ export default class DonateScreen extends Component{
             )
           }
         </View>
+        </SafeAreaProvider>
       </View>
     )
   }

@@ -1,8 +1,12 @@
 import React, { Component } from 'react'
-import { View, Text, TouchableOpacity, ScrollView, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, FlatList, StyleSheet, Button } from 'react-native';
 import { Card, Icon, ListItem } from 'react-native-elements'
 import firebase from 'firebase';
 import db from '../config.js'
+import { TouchableHighlightBase } from 'react-native';
+import MyHeader from '../components/MyHeader.js'
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
 
 export default class MyDonationScreen extends Component {
   constructor() {
@@ -18,7 +22,7 @@ export default class MyDonationScreen extends Component {
   static navigationOptions = { header: null };
 
   getDonorDetails = (donorId) => {
-    db.collection("User").where("Email", "==", donorId).get()
+    db.collection("User").where("Email", "==", this.state.donorId).get()
       .then((snapshot) => {
         snapshot.forEach((doc) => {
           this.setState({
@@ -43,109 +47,126 @@ export default class MyDonationScreen extends Component {
       })
   }
 
-  sendBook = (bookDetails) => {
-    if (bookDetails.Status === "Book Sent") {
+  sendItem = (Details) => {
+    if (Details.Status === "Item Sent") {
       var requestStatus = "Donor Interested"
-      db.collection("AllDonations").doc(bookDetails.doc_id).update({
+      db.collection("AllDonations").doc(Details.doc_id).update({
         "Status": "Donor Interested"
       })
-      this.sendNotification(bookDetails, requestStatus)
+      this.sendNotification(Details, requestStatus)
     }
     else {
-      var requestStatus = "Book Sent"
-      db.collection("AllDonations").doc(bookDetails.doc_id).update({
-        "Status": "Book Sent"
+      var requestStatus = "Item Sent"
+      db.collection("AllDonations").doc(Details.doc_id).update({
+        "Status": "Item Sent"
       })
-      this.sendNotification(bookDetails, requestStatus)
+      this.sendNotification(Details, requestStatus)
     }
   }
 
-  sendNotification=(bookDetails,requestStatus)=>{
-    var RequestId = bookDetails.ReqeustId
-    var donorId = bookDetails.DonorId
+  sendNotification = (Details, requestStatus) => {
+    var RequestId = Details.RequestId
+    var donorId = Details.DonorId
+
     db.collection("AllNotifications")
-    .where("ReqeustId","==", RequestId)
-    .where("Reqeuster","==",donorId)
-    .get()
-    .then((snapshot)=>{
-      snapshot.forEach((doc) => {
-        var message = ""
-        if(requestStatus === "Book Sent"){
-          message = this.state.donorName + " sent you book"
-        }else{
-           message =  this.state.donorName  + " has shown interest in donating the book"
-        }
-        db.collection("AllNotifications").doc(doc.id).update({
-          "message": message,
-          "NotificationStatus" : "unread",
-          "date"                : firebase.firestore.FieldValue.serverTimestamp()
-        })
-      });
-    })
+      .where("ReqeustId", "==", RequestId)
+      .where("DonorId", "==", donorId)
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          var message = ""
+          if (requestStatus === "Item Sent") {
+            message = this.state.donorName + " sent you Item"
+          } else {
+            message = this.state.donorName + " has shown interest in donating the item"
+          }
+          db.collection("AllNotifications").doc(doc.id).update({
+            "message": message,
+            "NotificationStatus": "unread",
+            "date": firebase.firestore.FieldValue.serverTimestamp()
+          })
+        });
+      })
   }
 
 
 
 
 
-keyExtractor = (item, index) => index.toString()
+  keyExtractor = (item, index) => index.toString()
 
-   renderItem = ( {item, i} ) =>(
+  renderItem = ({ item, i }) => (
 
 
-     <ListItem bottomDivider> 
+
+    <ListItem
+      bottomDivider
+    >
+
+      <Icon name="book" type="font-awesome" color='#696969' />
+      <ListItem.Content>
+        <ListItem.Title style={{ color: 'black', fontWeight: 'bold' }}> {item.ItemName}
+        </ListItem.Title>
+        <ListItem.Subtitle> {item.Reqeuster} </ListItem.Subtitle>
+        <TouchableOpacity
+            style={[
+              styles.button,
+              {
+                backgroundColor : item.Status === "Item Sent" ? "green" : "#ff5722"
+              }
+            ]}
+            onPress = {()=>{
+              this.sendItem(item)
+            }}
+           >
+             <Text style={{color:'#ffff'}}>{
+               item.Status === "Item Sent" ? "Item Sent" : "Send Item"
+             }</Text>
+           </TouchableOpacity>
+      </ListItem.Content>
+    </ListItem>
+
+
+  )
+
+
+  componentDidMount() {
+    this.getDonorDetails(this.state.donorId)
+    this.getAllDonations()
+  }
+
+  componentWillUnmount() {
+    this.requestRef();
+  }
+
+  render() {
+    return (
+      <SafeAreaProvider style={{ flex: 1 }}>
       
-     <ListItem.Content>
-       <ListItem.Title style={{ color: 'black', fontWeight: 'bold' }}> {item.NameOfItem} 
-       </ListItem.Title>
-       <ListItem.Subtitle> {"Requested By : " + item.Reqeuster +"\nStatus : " + item.Status} </ListItem.Subtitle> 
-       <TouchableOpacity style={styles.button} onPress = {()=>{
-                this.sendBook(item)
-           }}>
-       </TouchableOpacity>
-       
-   </ListItem.Content>
- </ListItem>
- 
+      <MyHeader navigation={this.props.navigation} title="MyBarters"/>
+      <View style={{ flex: 1 }}>
 
-
-   )
-
-
-   componentDidMount(){
-     this.getDonorDetails(this.state.donorId)
-     this.getAllDonations()
-   }
-
-   componentWillUnmount(){
-     this.requestRef();
-   }
-
-   render(){
-     return(
-       <View style={{flex:1}}>
-
-         <View style={{flex:1}}>
-           {
-             this.state.allDonations.length === 0
-             ?(
-               <View style={styles.subtitle}>
-                 <Text style={{ fontSize: 20}}>List of all book Donations</Text>
-               </View>
-             )
-             :(
-               <FlatList
-                 keyExtractor={this.keyExtractor}
-                 data={this.state.allDonations}
-                 renderItem={this.renderItem}
-               />
-             )
-           }
-         </View>
-       </View>
-     )
-   }
-   }
+        <View style={{ flex: 1 }}>
+          {
+            this.state.allDonations.length === 0
+              ? (
+                <View style={styles.subtitle}>
+                  <Text style={{ fontSize: 20 }}>List of all Donations</Text>
+                </View>
+              )
+              : (
+                <FlatList
+                  keyExtractor={this.keyExtractor}
+                  data={this.state.allDonations}
+                  renderItem={this.renderItem}
+                />
+              )
+          }
+        </View>
+      </View></SafeAreaProvider>
+    )
+  }
+}
 
 
 

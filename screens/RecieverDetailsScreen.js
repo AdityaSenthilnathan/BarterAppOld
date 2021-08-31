@@ -3,14 +3,15 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Card, Header, Icon } from 'react-native-elements';
 import db from '../config.js';
 import firebase from 'firebase';
-
+import { TouchableHighlightBase } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 export default class RecieverDetailsScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
       userId: firebase.auth().currentUser.email,
       Item: this.props.navigation.getParam('details')['NameOfItem'],
-      recieverId: this.props.navigation.getParam('details')['User'],
+      recieverId: this.props.navigation.getParam('details')['UserId'],
       requestId: this.props.navigation.getParam('details')['ReqeustId'],
       Name: this.props.navigation.getParam('details')["UserName"],
       Description: this.props.navigation.getParam('details')[
@@ -43,9 +44,22 @@ export default class RecieverDetailsScreen extends Component {
       })
   }
 
-  updateBookStatus = () => {
+  addNotification = () => {
+    var message = this.state.Name + ' has shown interest in donating';
+    db.collection('AllNotifications').add({
+      TargetedUserId: this.state.recieverId,
+      DonorId: this.state.userId,
+      ReqeustId: this.state.requestId,
+      Name: this.state.Item,
+      Date: firebase.firestore.FieldValue.serverTimestamp(),
+      Status: 'unread',
+      message: message,
+    });
+  };
+
+  updateItemStatus = () => {
     db.collection('AllDonations').add({
-      "ItemName": this.state.Name,
+      "ItemName": this.state.Item,
       "RequestId": this.state.requestId,
       "Reqeuster": this.state.recieverName,
       "DonorId": this.state.userId,
@@ -69,13 +83,13 @@ export default class RecieverDetailsScreen extends Component {
         <View style={{ flex: 0.1 }}>
           <Header
             leftComponent={<Icon name='arrow-left' type='feather' color='#696969' onPress={() => this.props.navigation.goBack()} />}
-            centerComponent={{ text: "Donate Books", style: { color: '#90A5A9', fontSize: 20, fontWeight: "bold", } }}
+            centerComponent={{ text: "Donate ", style: { color: '#90A5A9', fontSize: 20, fontWeight: "bold", } }}
             backgroundColor="#eaf8fe"
           />
         </View>
         <View style={{ flex: 0.3 }}>
           <Card
-            title={"Book Information"}
+            title={" Information"}
             titleStyle={{ fontSize: 20 }}
           >
             <Card >
@@ -109,7 +123,8 @@ export default class RecieverDetailsScreen extends Component {
                 <TouchableOpacity
                   style={styles.button}
                   onPress={() => {
-                    this.updateBookStatus()
+                    this.updateItemStatus()
+                    this.addNotification()
                     this.props.navigation.navigate('MyDonations')
                   }}>
                   <Text>I want to Donate</Text>

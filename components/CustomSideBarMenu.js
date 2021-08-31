@@ -1,8 +1,12 @@
 import React, { Component} from 'react';
 import {StyleSheet, View, Text,TouchableOpacity} from 'react-native';
 import { DrawerItems} from 'react-navigation-drawer'
-
+import db from '../config'
 import firebase from 'firebase';
+import {Avatar, Icon} from 'react-native-elements'
+//expo install expo-image-picker
+//import * as ImagePicker from 'expo-image-picker'
+//import * as Permissions from 'expo-permissions'
 
 export default class CustomSideBarMenu extends Component{
   render(){
@@ -20,6 +24,7 @@ export default class CustomSideBarMenu extends Component{
             <Text>Log Out</Text>
           </TouchableOpacity>
         </View>
+        
       </View>
     )
   }

@@ -10,6 +10,7 @@ import {
   Alert} from 'react-native';
 import db from '../config'
 import firebase from 'firebase'
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default class SettingScreen extends Component{
   constructor(){
@@ -51,7 +52,7 @@ export default class SettingScreen extends Component{
       "contact"   : this.state.contact,
     })
 
-    Alert.alert("Profile Updated Successfully")
+alert("Profile Updated Successfully")
 
   }
 
@@ -62,6 +63,9 @@ export default class SettingScreen extends Component{
 
   render(){
     return(
+      <SafeAreaProvider style={{ flex: 1 }}>
+      
+     
       <View style={styles.container} >
        
         <View style={styles.formContainer}>
@@ -117,7 +121,7 @@ export default class SettingScreen extends Component{
               <Text style={styles.buttonText}>Save</Text>
             </TouchableOpacity>
         </View>
-      </View>
+      </View></SafeAreaProvider>
     )
   }
 }
