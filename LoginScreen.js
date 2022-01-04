@@ -7,8 +7,8 @@ export default class LoginScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      Email: 's@gmail.com',
-      Password: 's@gmail.com',
+      Email: 'q@gmail.com',
+      Password: '123456',
       modalEmail: '',
       modalPassword: '',
       ModelIsVisible: false,
@@ -18,7 +18,8 @@ export default class LoginScreen extends React.Component {
       Age: '',
       Address: '',
       ConfirmPassword: '',
-      true: 2
+      true: 2,
+      IsBookRequestActive: false
 
     }
   }
@@ -54,7 +55,7 @@ export default class LoginScreen extends React.Component {
 
         if (response) {
 
-          this.props.navigation.navigate('ReqeustScreen')
+          this.props.navigation.navigate('Drawer')
         }
       }
       catch (error) {
@@ -79,10 +80,10 @@ export default class LoginScreen extends React.Component {
     return (
       <View style= {styles.container}>
         {this.showModel()}
-        <TextInput onChangeText={(text) => { this.setState({ Email: text }) }} value={this.state.Email} placeholder="Email"></TextInput>
-        <TextInput onChangeText={(text) => { this.setState({ Password: text }) }} value={this.state.Password} placeholder="Password"></TextInput>
-        <TouchableOpacity onPress={() => { this.login(this.state.Email, this.state.Password) }}><Text>Login</Text></TouchableOpacity>
-        <TouchableOpacity onPress={() => { this.setState({ ModelIsVisible: true }) }}><Text>Sign Up</Text></TouchableOpacity>        
+        <TextInput onChangeText={(text) => { this.setState({ Email: text }) }} value={this.state.Email} style = {styles.input} placeholder="Email"></TextInput>
+        <TextInput onChangeText={(text) => { this.setState({ Password: text }) }} value={this.state.Password} style = {styles.input} placeholder="Password"></TextInput>
+        <TouchableOpacity style = {styles.button} onPress={() => { this.login(this.state.Email, this.state.Password) }}><Text>Login</Text></TouchableOpacity>
+        <TouchableOpacity style = {styles.button} onPress={() => { this.setState({ ModelIsVisible: true }) }}><Text>Sign Up</Text></TouchableOpacity>        
       </View>);
 
   
@@ -95,6 +96,7 @@ export default class LoginScreen extends React.Component {
       firebase.auth().createUserWithEmailAndPassword(Email, Password)
         .then((response) => {
           db.collection('User').add({
+            Email : this.state.Email,
             FirstName: this.state.FirstName,
             LastName: this.state.LastName,
             Contact: this.state.Contact,
@@ -125,5 +127,24 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     width: 200
 },
+input:{
+  backgroundColor: '#d19',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderWidth: 2,
+  borderColor: '#000',
+  margin: 2
 
+
+},
+button:{
+  marginTop: 20,
+  backgroundColor: '#d11',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderWidth: 2,
+  
+  borderColor: '#000',
+
+},
 });
